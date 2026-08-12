@@ -1,0 +1,67 @@
+/* Create a STUDENT table and write a PL/SQL block that accepts Roll
+Number and:
+ Calculates Total
+ Percentage
+ Assigns Grade
+ Displays Pass/Fail status (Pass if all subjects ≥35).*/
+
+SET SERVEROUTPUT ON;
+SET VERIFY OFF;
+SET FEEDBACK OFF;
+
+DECLARE
+    V_ROLLNO NUMBER := &ROLLNO;
+    V_NAME VARCHAR2(20);
+    V_M1 NUMBER(10);
+    V_M2 NUMBER(10);
+    V_M3 NUMBER(10);
+    V_TOTAL NUMBER(10);
+    V_PER NUMBER(5,2);
+    V_GRADE VARCHAR2(20);
+
+BEGIN
+
+    SELECT NAME, SUB1, SUB2, SUB3 INTO V_NAME, V_M1, V_M2, V_M3 FROM STUDENT WHERE ROLLNO = V_ROLLNO;
+
+    V_TOTAL := V_M1 + V_M2 + V_M3;
+    V_PER := V_TOTAL / 3;
+
+    IF V_M1 < 35 OR V_M2 < 35 OR V_M3 < 35 THEN
+
+        DBMS_OUTPUT.PUT_LINE('RESULT: FAIL');
+
+    ELSE
+
+        IF V_PER >= 90 THEN
+            V_GRADE := 'DISTINCTION';
+        ELSIF V_PER >= 70 THEN
+            V_GRADE := 'FIRST CLASS';
+        ELSIF V_PER >= 50 THEN
+            V_GRADE := 'SECOND CLASS';
+        ELSE
+            V_GRADE := 'PASS CLASS';
+        END IF;
+
+        DBMS_OUTPUT.PUT_LINE('RESULT: PASS');
+        DBMS_OUTPUT.PUT_LINE('ROLL NO: ' || V_ROLLNO);
+        DBMS_OUTPUT.PUT_LINE('NAME: ' || V_NAME);
+        DBMS_OUTPUT.PUT_LINE('SUBJECT 1: ' || V_M1);
+        DBMS_OUTPUT.PUT_LINE('SUBJECT 2: ' || V_M2);
+        DBMS_OUTPUT.PUT_LINE('SUBJECT 3: ' || V_M3);
+        DBMS_OUTPUT.PUT_LINE('TOTAL: ' || V_TOTAL);
+        DBMS_OUTPUT.PUT_LINE('PERCENTAGE: ' || V_PER);
+        DBMS_OUTPUT.PUT_LINE('GRADE: ' || V_GRADE);
+
+        UPDATE STUDENT SET TOTAL = V_TOTAL,PER = V_PER,GRADE = V_GRADE WHERE ROLLNO = V_ROLLNO;
+		COMMIT;
+
+    END IF;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('INVALID CHOISE PLEASE ENTER VALID ROLLNO');
+
+END;
+/
+SET SERVEROUTPUT OFF;
+SET VERIFY ON;
+SET FEEDBACK ON;
