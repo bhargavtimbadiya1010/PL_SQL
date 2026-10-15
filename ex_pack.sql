@@ -1,0 +1,71 @@
+/* write a package which includes one procedure and function 
+
+procedure:
+1.procedure will accept joining_date from user and shows total num of months exp for given employee from emp 
+
+fuction:
+1.write a function which accept date from the user and check weather the year is leap year or not. */ 
+
+CREATE OR REPLACE PACKAGE EMP_PKG AS
+    PROCEDURE JOINING_DATE(V_ID IN EMP1.EMPNO%TYPE);
+	FUNCTION CHECK_LEAP_YEAR(P_DATE IN DATE) RETURN VARCHAR2;
+
+END EMP_PKG;
+/
+
+CREATE OR REPLACE PACKAGE BODY EMP_PKG AS
+
+    PROCEDURE JOINING_DATE(V_ID IN EMP1.EMPNO%TYPE)IS
+        V_MONTH NUMBER;
+        V_NAME EMP1.ENAME%TYPE;
+        V_HIREDATE EMP1.HIREDATE%TYPE;
+		
+    BEGIN
+        SELECT ENAME, HIREDATE INTO V_NAME, V_HIREDATE FROM EMP1 WHERE EMPNO = V_ID;
+
+        V_MONTH := TRUNC(MONTHS_BETWEEN(SYSDATE, V_HIREDATE));
+
+        DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME: '||V_NAME);
+        DBMS_OUTPUT.PUT_LINE('JOINING DATE: '||TO_CHAR(V_HIREDATE,'DD-MM-YYYY'));
+        DBMS_OUTPUT.PUT_LINE('TOTAL MONTHS EXPERIENCE: ' ||V_MONTH);
+		
+    END JOINING_DATE;
+	
+	FUNCTION CHECK_LEAP_YEAR(P_DATE IN DATE)RETURN VARCHAR2 IS
+        V_YEAR NUMBER;
+
+    BEGIN
+        V_YEAR := EXTRACT(YEAR FROM P_DATE);
+
+        IF MOD(V_YEAR, 400) = 0
+           OR (MOD(V_YEAR, 4) = 0 AND MOD(V_YEAR, 100) <> 0)
+        THEN
+            RETURN 'LEAP YEAR';
+        ELSE
+            RETURN 'NOT A LEAP YEAR';
+        END IF;
+
+    END CHECK_LEAP_YEAR;
+
+
+END EMP_PKG;
+/
+
+SET SERVEROUTPUT ON;
+SET VERIFY OFF;
+SET FEEDBACK OFF;
+
+DECLARE
+    V_ID EMP1.EMPNO%TYPE := &V_ID;
+	V_DATE DATE := TO_DATE('&CHECK_DATE','DD-MM-YYYY');
+    V_RESULT VARCHAR2(30);
+
+BEGIN
+    EMP_PKG.JOINING_DATE(V_ID);
+	V_RESULT := EMP_PKG.CHECK_LEAP_YEAR(V_DATE);
+    DBMS_OUTPUT.PUT_LINE('LEAP YEAR CHECK: '||V_RESULT);
+END;
+/
+
+SET VERIFY ON;
+SET FEEDBACK ON;
